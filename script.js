@@ -108,37 +108,37 @@ function renderizarProdutos(lista = produtos) {
         'Nenhum produto cadastrado.'
     );
 
-    const seletor = $('produto-entrada');
+    // Preenche tanto o seletor de entrada quanto o seletor de saída
+    ['produto-entrada', 'produto-saida'].forEach((idSeletor) => {
+        const seletor = $(idSeletor);
 
-    if (seletor) {
-        const valorAnterior = seletor.value;
+        if (seletor) {
+            const valorAnterior = seletor.value;
 
-        seletor.innerHTML = `
-            <option value="">Selecione um produto</option>
-            ${produtos.map((p) => `
-                <option value="${escapar(p.id)}">
-                    ${escapar(p.nome)} (ID ${escapar(p.id)})
-                </option>
-            `).join('')}
-        `;
+            seletor.innerHTML = `
+                <option value="">Selecione um produto</option>
+                ${produtos.map((p) => `
+                    <option value="${escapar(p.id)}">
+                        ${escapar(p.nome)} (ID${escapar(p.id)})
+                    </option>
+                `).join('')}
+            `;
 
-        if (produtos.some((p) => String(p.id) === valorAnterior)) {
-            seletor.value = valorAnterior;
+            if (produtos.some((p) => String(p.id) === valorAnterior)) {
+                seletor.value = valorAnterior;
+            }
         }
+    });
+
+    if ($('total-produtos')) {$('total-produtos').textContent = numero(produtos.length);
     }
 
-    if ($('total-produtos')) {
-        $('total-produtos').textContent = numero(produtos.length);
-    }
-
-    if ($('total-unidades')) {
-        $('total-unidades').textContent = numero(
+    if ($('total-unidades')) {$('total-unidades').textContent = numero(
             produtos.reduce((soma, p) => soma + Number(p.quantidade || 0), 0)
         );
     }
 
-    if ($('valor-estoque')) {
-        $('valor-estoque').textContent = moeda(
+    if ($('valor-estoque')) {$('valor-estoque').textContent = moeda(
             produtos.reduce(
                 (soma, p) => soma +
                     Number(p.quantidade || 0) * Number(p.valor || 0),
@@ -147,8 +147,7 @@ function renderizarProdutos(lista = produtos) {
         );
     }
 
-    if ($('total-alertas')) {
-        $('total-alertas').textContent = numero(
+    if ($('total-alertas')) {$('total-alertas').textContent = numero(
             produtos.filter((p) =>
                 Number(p.quantidade) <= 0 ||
                 Number(p.quantidade) >= 100
@@ -274,6 +273,36 @@ $('entrada-form')?.addEventListener('submit', async (evento) => {
         alert(resultado?.message || 'Entrada registrada com sucesso!');
         form.reset();
         await carregarProdutos();
+    } catch (erro) {
+        alert(erro.message);
+        console.error(erro);
+    }
+});
+
+// Registrar saída de estoque
+$('saida-form')?.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+
+    const form = evento.currentTarget;
+    const id = Number($('produto-saida')?.value);
+    const quantidade = Number($('quantidade-saida')?.value);
+    const observacao = $('motivo-saida')?.value || '';
+
+    if (!id || !Number.isFinite(quantidade) || quantidade <= 0) {
+        alert('Selecione um produto e informe uma quantidade maior que zero.');
+        return;
+    }
+
+    try {
+        const resultado = await requisicao('/saida', {
+            method: 'POST',
+            body: JSON.stringify({ id, quantidade, observacao })
+        });
+
+        alert(resultado?.message || 'Saída registrada com sucesso!');
+        form.reset();
+        await carregarProdutos();
+        await carregarSaidas();
     } catch (erro) {
         alert(erro.message);
         console.error(erro);
