@@ -106,7 +106,6 @@ function renderizarProdutos(lista = produtos) {
         'Nenhum produto encontrado.'
     );
 
-    // CORRIGIDO: adicionada a variável 'lista' que faltava no 2º argumento
     preencherTabela(
         'tabela-dashboard',
         lista,
@@ -226,19 +225,30 @@ $('cadastro-form')?.addEventListener('submit', async (evento) => {
     const form = evento.currentTarget;
     const dados = new FormData(form);
 
+    const nome = String(dados.get('nome') || '').trim();
+    const categoria = String(dados.get('categoria') || '').trim();
+    const quantidade = Number(dados.get('quantidade'));
+    const valor = Number(dados.get('valor'));
+    
+    // Tenta obter 'unidade_medida' ou 'unidade' do formulário. Se não houver, atribui 'un'
+    const campoUnidade = dados.get('unidade_medida') || dados.get('unidade');
+    const unidade_medida = (campoUnidade && String(campoUnidade).trim()) 
+        ? String(campoUnidade).trim() 
+        : 'un';
+
     const produto = {
-        nome: String(dados.get('nome') || '').trim(),
-        categoria: String(dados.get('categoria') || '').trim(),
-        quantidade: Number(dados.get('quantidade')),
-        valor: Number(dados.get('valor')),
-        // ADICIONADO: Pega a unidade de medida do formulário (ou usa 'un' como padrão)
-        unidade_medida: String(dados.get('unidade_medida') || 'un').trim()
+        nome,
+        categoria,
+        quantidade,
+        valor,
+        unidade_medida
     };
 
+    // Validação estrita: exige quantidade e valor maiores que 0
     if (!produto.nome || !produto.categoria || !produto.unidade_medida ||
-        produto.quantidade < 0 || !Number.isFinite(produto.quantidade) ||
+        produto.quantidade <= 0 || !Number.isFinite(produto.quantidade) ||
         produto.valor <= 0 || !Number.isFinite(produto.valor)) {
-        alert('Confira os dados. Preencha todos os campos e certifique-se de que o valor é maior que zero.');
+        alert('Confira os dados. Preencha todos os campos e certifique-se de que a quantidade e o valor são maiores que zero.');
         return;
     }
 
@@ -256,6 +266,7 @@ $('cadastro-form')?.addEventListener('submit', async (evento) => {
         console.error(erro);
     }
 });
+
 // Registrar entrada de estoque
 $('entrada-form')?.addEventListener('submit', async (evento) => {
     evento.preventDefault();
