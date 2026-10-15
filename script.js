@@ -230,13 +230,15 @@ $('cadastro-form')?.addEventListener('submit', async (evento) => {
         nome: String(dados.get('nome') || '').trim(),
         categoria: String(dados.get('categoria') || '').trim(),
         quantidade: Number(dados.get('quantidade')),
-        valor: Number(dados.get('valor'))
+        valor: Number(dados.get('valor')),
+        // ADICIONADO: Pega a unidade de medida do formulário (ou usa 'un' como padrão)
+        unidade_medida: String(dados.get('unidade_medida') || 'un').trim()
     };
 
-    if (!produto.nome || !produto.categoria ||
+    if (!produto.nome || !produto.categoria || !produto.unidade_medida ||
         produto.quantidade < 0 || !Number.isFinite(produto.quantidade) ||
         produto.valor <= 0 || !Number.isFinite(produto.valor)) {
-        alert('Confira os dados. A quantidade não pode ser negativa e o valor deve ser maior que zero.');
+        alert('Confira os dados. Preencha todos os campos e certifique-se de que o valor é maior que zero.');
         return;
     }
 
@@ -254,7 +256,6 @@ $('cadastro-form')?.addEventListener('submit', async (evento) => {
         console.error(erro);
     }
 });
-
 // Registrar entrada de estoque
 $('entrada-form')?.addEventListener('submit', async (evento) => {
     evento.preventDefault();
