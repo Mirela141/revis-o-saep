@@ -172,3 +172,5 @@ router.get('/saidas', async (req, res) => {
         res.status(500).json({ error: 'Erro ao buscar saídas' });
     }
 });
+
+module.exports = router;
