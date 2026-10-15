@@ -71,8 +71,13 @@ function preencherTabela(id, linhas, colunas, mensagemVazia) {
 
     if (!tabela) return;
 
-    if (!linhas.length) {
+    if (!Array.isArray(linhas) || !linhas.length) {
         mostrarMensagem(id, mensagemVazia);
+        return;
+    }
+
+    if (!Array.isArray(colunas)) {
+        console.error('O parâmetro colunas precisa de ser um Array.');
         return;
     }
 
@@ -101,8 +106,10 @@ function renderizarProdutos(lista = produtos) {
         'Nenhum produto encontrado.'
     );
 
+    // CORRIGIDO: adicionada a variável 'lista' que faltava no 2º argumento
     preencherTabela(
         'tabela-dashboard',
+        lista,
         colunas,
         'Nenhum produto cadastrado.'
     );
@@ -139,8 +146,7 @@ function renderizarProdutos(lista = produtos) {
 
     if ($('valor-estoque')) {$('valor-estoque').textContent = moeda(
             produtos.reduce(
-                (soma, p) => soma +
-                    Number(p.quantidade || 0) * Number(p.valor || 0),
+                (soma, p) => soma + Number(p.quantidade || 0) * Number(p.valor || 0),
                 0
             )
         );
@@ -148,8 +154,7 @@ function renderizarProdutos(lista = produtos) {
 
     if ($('total-alertas')) {$('total-alertas').textContent = numero(
             produtos.filter((p) =>
-                Number(p.quantidade) <= 0 ||
-                Number(p.quantidade) >= 100
+                Number(p.quantidade) <= 0 || Number(p.quantidade) >= 100
             ).length
         );
     }
