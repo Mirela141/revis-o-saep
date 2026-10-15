@@ -13,9 +13,10 @@ router.get('/', async (req, res) => {
     }
 });
 
+
 // 7) Cadastrar novos produtos
 router.post('/cadastrar', async (req, res) => {
-    const { nome, quantidade, valor, categoria } = req.body;
+    const { nome, quantidade, valor, categoria, unidade_medida } = req.body;
 
     if (
         !nome ||
@@ -23,10 +24,11 @@ router.post('/cadastrar', async (req, res) => {
         quantidade === null ||
         valor === undefined ||
         valor === null ||
-        !categoria
+        !categoria ||
+        !unidade_medida
     ) {
         return res.status(400).json({
-            error: 'Campos obrigatórios: nome, quantidade, valor e categoria'
+            error: 'Campos obrigatórios: nome, quantidade, valor, categoria e unidade_medida'
         });
     }
 
@@ -40,11 +42,11 @@ router.post('/cadastrar', async (req, res) => {
 
     try {
         const sql = `
-            INSERT INTO produtos (nome, quantidade, valor, categoria)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO produtos (nome, quantidade, valor, categoria, unidade_medida)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id
         `;
-        const results = await db.query(sql, [nome, quantidade, valor, categoria]);
+        const results = await db.query(sql, [nome, quantidade, valor, categoria, unidade_medida]);
 
         return res.status(201).json({
             message: 'Produto cadastrado com sucesso',
@@ -53,41 +55,6 @@ router.post('/cadastrar', async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: 'Erro ao cadastrar produto' });
-    }
-});
-
-// 8) Registrar entrada de produto no estoque
-router.post('/entrada', async (req, res) => {
-    const { id, quantidade } = req.body;
-
-    if (!id || quantidade === undefined || quantidade === null || quantidade <= 0) {
-        return res.status(400).json({
-            error: 'Informe id e quantidade maior que zero'
-        });
-    }
-
-    try {
-        const atualizarProduto = `
-            UPDATE produtos
-            SET quantidade = quantidade + $1
-            WHERE id = $2
-        `;
-        const results = await db.query(atualizarProduto, [quantidade, id]);
-
-        if (results.rowCount === 0) {
-            return res.status(404).json({ error: 'Produto não encontrado' });
-        }
-
-        const registrarMovimentacao = `
-            INSERT INTO movimentacoes (data_movimentacao, tipo, quantidade, produtos_id)
-            VALUES (CURRENT_DATE, 'entrada', $1, $2)
-        `;
-        await db.query(registrarMovimentacao, [quantidade, id]);
-
-        return res.status(200).json({ message: 'Entrada registrada com sucesso' });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Erro ao registrar entrada' });
     }
 });
 
