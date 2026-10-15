@@ -103,7 +103,6 @@ function renderizarProdutos(lista = produtos) {
 
     preencherTabela(
         'tabela-dashboard',
-        lista.slice(0, 5),
         colunas,
         'Nenhum produto cadastrado.'
     );
