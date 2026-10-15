@@ -1,12 +1,17 @@
-require('dotenv').config();
+const express = require('express');
+const app = express();
+const produtosRouter = require('./routes/produtos');
+
+app.use(express.json());
+
+// Regista as rotas sob o prefixo /produtos
 app.use('/produtos', produtosRouter);
 
-const app = require('./app');
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
-
-// No final do teu app.js ou server.js, adiciona/garante esta linha:
+// OBRIGATÓRIO PARA A VERCEL: exporta a app Express
 module.exports = app;
+
+// Executa o servidor apenas no ambiente local
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Servidor a executar na porta ${PORT}`));
+}
