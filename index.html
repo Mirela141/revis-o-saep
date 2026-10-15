@@ -18,6 +18,21 @@
             background: #08060d;
             color: #fff;
             min-height: 100vh;
+
+            body {
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                /* Imagem com camada escura transparente por cima */
+                background-image:
+                    linear-gradient(rgba(15, 15, 26, 0.85), rgba(15, 15, 26, 0.85)),
+                    url('https://i.pinimg.com/1200x/fb/d2/55/fbd25514c3e90d6e442084dff6f9e981.jpg');
+                /* Ou o caminho da imagem no seu projeto */
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+                background-repeat: no-repeat;
+            }
         }
 
         .layout {
@@ -503,7 +518,7 @@
                                 <option value="pote">Pote</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-actions">
                             <button class="btn" type="submit">Cadastrar produto</button>
                         </div>
