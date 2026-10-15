@@ -1,4 +1,4 @@
-const API = 'http://localhost:3000/produtos';
+const API = '/produtos';
 
 let produtos = [];
 
